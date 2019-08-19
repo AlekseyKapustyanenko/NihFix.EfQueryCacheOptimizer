@@ -16,11 +16,9 @@ namespace NihFix.EfQueryCacheOptimizer.Sample
             using (var context=new SampleContext())
             {
                 context.Database.Log = Console.WriteLine;
-                var xr = new[] { "a", "b" };
-                Expression<Func<TestEntity, bool>> t = x => xr.Any(xri => xri == x.Name);
+                var xr = new[] { 1, 2};
                 
-                var y= ((LambdaExpression)((MethodCallExpression)t.Body).Arguments[1]).Body.GetType();
-                var query = context.TestEntities.AsCacheOptimizedQueriable().Where(t);
+                var query = context.TestEntities.AsCacheOptimizedQueriable().Where(t=>xr.All(r=>r== t.Id));
                 query.ToList();
                 Console.ReadLine();
             }

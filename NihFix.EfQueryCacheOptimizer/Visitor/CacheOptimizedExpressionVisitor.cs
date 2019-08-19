@@ -29,41 +29,83 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (node.Method.Name == "Any" && node.Method.DeclaringType == typeof(Enumerable))
+            var optimizeIsSuccses = false;
+            BinaryExpression optimizedExpression = null;
+            if (node.Method.DeclaringType == typeof(Enumerable))
             {
-                //MemberExpression
-                if (node.Arguments[0] is MemberExpression member)
+
+                switch (node.Method.Name)
                 {
-                    if (member.Expression is ConstantExpression constExpr)
-                    {
-                        var getValueslambda = Expression.Lambda(member);
-                        var getValuesMethod = getValueslambda.Compile();
-                        var values = (IEnumerable)getValuesMethod.DynamicInvoke();
-                        var oldBinaryExpression = ((BinaryExpression)((LambdaExpression)(node.Arguments[1])).Body);
-                        var operation = oldBinaryExpression.NodeType;
-                        var parameter = oldBinaryExpression.Right;
-
-
-                        BinaryExpression binaryExpression=null;
-                        foreach (var el in values)
-                        {
-                            var propExpression = ConvertValueToTypedPropertyExpression(el, el.GetType());
-                            var expr = Expression.MakeBinary(operation, propExpression, parameter);
-                            if (binaryExpression == null)
-                            {
-                                binaryExpression = expr;
-                            }
-                            else
-                            {
-                                binaryExpression = Expression.Or(binaryExpression, expr);
-                            }
-                        }
-                        return base.VisitBinary(binaryExpression);
-                    }
+                    case "Any":
+                        optimizeIsSuccses = TryOptimizeAny(node, out optimizedExpression);
+                        break;
+                    case "Contains":
+                        optimizeIsSuccses = TryOptimizeContains(node, out optimizedExpression);
+                        break;
+                    case "All":
+                        optimizeIsSuccses = TryOptimizeAll(node, out optimizedExpression);
+                        break;
                 }
-
             }
-            return base.VisitMethodCall(node);
+            return optimizeIsSuccses ? VisitBinary(optimizedExpression) : base.VisitMethodCall(node);
+        }
+
+        private bool TryOptimizeAny(MethodCallExpression node, out BinaryExpression expression)
+        {
+            if (TryGetCollectionFromMethod(node, out var values) && node.Arguments.Count == 2)
+            {
+                var lambda = (LambdaExpression)node.Arguments[1];
+                var oldBinaryExpression = (BinaryExpression)lambda.Body;
+                var lambdaParam = lambda.Parameters[0];
+                var operation = oldBinaryExpression.NodeType;
+                var selectorParameter = (MemberExpression)(oldBinaryExpression.Right == lambdaParam ?
+                    oldBinaryExpression.Left : oldBinaryExpression.Right);
+                var binaryExpression = MakeBinaryExpressionFromCollection(values, selectorParameter, operation, Expression.Or);
+                expression = binaryExpression;
+                return true;
+            }
+            else
+            {
+                expression = null;
+                return false;
+            }
+        }
+
+        private bool TryOptimizeContains(MethodCallExpression node, out BinaryExpression expression)
+        {
+            if (TryGetCollectionFromMethod(node, out var values) && node.Arguments.Count == 2)
+            {
+                var selector = (MemberExpression)node.Arguments[1];
+                var binaryExpression = MakeBinaryExpressionFromCollection(values, selector, ExpressionType.Equal, Expression.Or);
+                expression = binaryExpression;
+                return true;
+            }
+            else
+            {
+                expression = null;
+                return false;
+            }
+        }
+
+        private bool TryOptimizeAll(MethodCallExpression node, out BinaryExpression expression)
+        {
+            if (TryGetCollectionFromMethod(node, out var values) && node.Arguments.Count == 2)
+            {
+                var lambda = (LambdaExpression)node.Arguments[1];
+                var oldBinaryExpression = (BinaryExpression)lambda.Body;
+                var lambdaParam = lambda.Parameters[0];
+                var operation = oldBinaryExpression.NodeType;
+                var selectorParameter = (MemberExpression)(oldBinaryExpression.Right == lambdaParam ?
+                    oldBinaryExpression.Left : oldBinaryExpression.Right);
+                var binaryExpression = MakeBinaryExpressionFromCollection(values, selectorParameter, operation, Expression.And);
+                expression = binaryExpression;
+                return true;
+            }
+            else
+            {
+                expression = null;
+                return false;
+            }
         }
 
 
@@ -136,5 +178,44 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
             throw new ArgumentException();
         }
 
+        private bool TryGetCollectionFromMethod(MethodCallExpression node, out IEnumerable collection)
+        {
+            if (node.Arguments[0] is MemberExpression member)
+            {
+
+                var getValueslambda = Expression.Lambda(member);
+                var getValuesMethod = getValueslambda.Compile();
+                collection = (IEnumerable)getValuesMethod.DynamicInvoke();
+                return true;
+            }
+            collection = null;
+            return false;
+        }
+
+        private BinaryExpression MakeBinaryExpressionFromCollection(
+            IEnumerable values,
+            MemberExpression selector,
+            ExpressionType operation,
+            Func<Expression, Expression,
+                BinaryExpression> binaryMethod)
+        {
+
+
+            BinaryExpression binaryExpression = null;
+            foreach (var el in values)
+            {
+                var propExpression = ConvertValueToTypedPropertyExpression(el, el.GetType());
+                var expr = Expression.MakeBinary(operation, propExpression, selector);
+                if (binaryExpression == null)
+                {
+                    binaryExpression = expr;
+                }
+                else
+                {
+                    binaryExpression = binaryMethod(binaryExpression, expr);
+                }
+            }
+            return binaryExpression;
+        }
     }
 }
