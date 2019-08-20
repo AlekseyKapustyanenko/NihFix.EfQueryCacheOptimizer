@@ -10,7 +10,8 @@ namespace NihFix.EfQueryCacheOptimizer.Extentions
 {
     public static class CacheOptimizedQueriableExtentions
     {
-        public static ICacheOptimizedQueryable<TSource> AsCacheOptimizedQueriable<TSource>(this IQueryable<TSource> originalQueriable) {
+        public static ICacheOptimizedQueryable<TSource> AsCacheOptimizedQueriable<TSource>(this IQueryable<TSource> originalQueriable)
+        {
             return new CacheOptimizedQueryable<TSource>(originalQueriable);
         }
 
@@ -25,7 +26,8 @@ namespace NihFix.EfQueryCacheOptimizer.Extentions
             return DecorateMethod(source, predicate, (q, e) => q.All(e));
         }
 
-        public static bool Any<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+        public static bool Any<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        {
             return DecorateMethod(source, predicate, (q, e) => q.Any(e));
         }
 
@@ -97,9 +99,16 @@ namespace NihFix.EfQueryCacheOptimizer.Extentions
 
         //public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) { throw new NotImplementedException(); }
 
-        //public static IQueryable<TResult> Select<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, int, TResult>> selector) { throw new NotImplementedException(); }
+        public static IQueryable<TResult> Select<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, int, TResult>> selector) {
+            var optimizedExpression = OptimizeExpressionForCache(selector);
+            return source.AsQueryable().Select(optimizedExpression);
+        }
 
-        //public static IQueryable<TResult> Select<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TResult>> selector) { throw new NotImplementedException(); }
+        public static IQueryable<TResult> Select<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+        {
+            var optimizedExpression = OptimizeExpressionForCache(selector);
+            return source.AsQueryable().Select(optimizedExpression);
+        }
 
         //public static IQueryable<TResult> SelectMany<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector) { throw new NotImplementedException(); }
 
@@ -164,7 +173,7 @@ namespace NihFix.EfQueryCacheOptimizer.Extentions
 
         private static T OptimizeExpressionForCache<T>(T expression) where T : Expression
         {
-            var visitor = CacheOptimizedExpressionVisitor.Innstance;
+            var visitor = new CacheOptimizedExpressionVisitor();
             var optimizedExpression = (T)visitor.Visit(expression);
             return optimizedExpression;
         }

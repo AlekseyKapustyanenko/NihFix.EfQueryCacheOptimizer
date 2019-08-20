@@ -13,15 +13,21 @@ namespace NihFix.EfQueryCacheOptimizer.Sample
     {
         static void Main(string[] args)
         {
-            using (var context=new SampleContext())
+            using (var context = new SampleContext())
             {
                 context.Database.Log = Console.WriteLine;
-                var xr = new[] { 1, 2};
-                
-                var query = context.TestEntities.AsCacheOptimizedQueriable().Where(t=>xr.All(r=>r== t.Id));
+                var xr = new[] { 1, 2 };
+                var query = context.TestEntities.AsCacheOptimizedQueriable().Select(x => new { Id = x.Id, Name = "qwert" });
                 query.ToList();
                 Console.ReadLine();
             }
+        }
+
+        public class xxx
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
         }
     }
 }

@@ -9,10 +9,45 @@ using System.Threading.Tasks;
 namespace NihFix.EfQueryCacheOptimizer.Visitor
 {
     public class CacheOptimizedExpressionVisitor : ExpressionVisitor
-    {
-        private static Lazy<CacheOptimizedExpressionVisitor> _instance => new Lazy<CacheOptimizedExpressionVisitor>(() => new CacheOptimizedExpressionVisitor());
+    {       
 
-        internal static CacheOptimizedExpressionVisitor Innstance => _instance.Value;
+        protected override Expression VisitMemberInit(MemberInitExpression node)
+        {
+            //var newBindings = node.Bindings.Select(b => TransformConstantToPropertyOrGetOriginalExpression(b.Member., out _));
+
+            return base.VisitMemberInit(node);
+        }
+
+        protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
+        {
+            var changed = false;
+            var propertyExpr= TransformConstantToPropertyOrGetOriginalExpression(node.Expression, ref changed);
+            if (changed)
+            {
+                var assignExpr = Expression.Bind(node.Member, propertyExpr);
+                return base.VisitMemberAssignment(assignExpr);
+            }
+            return base.VisitMemberAssignment(node);
+        }
+
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            var changed = false;
+            var propertyExprs = node.Arguments.Select(a=>TransformConstantToPropertyOrGetOriginalExpression(a, ref changed));
+            if (changed)
+            {
+                var assignExpr = Expression.New(node.Constructor, propertyExprs, node.Members);
+                return base.VisitNew(assignExpr);
+            }
+            return base.VisitNew(node);
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            
+            return base.VisitLambda(node);
+        }
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
@@ -118,7 +153,6 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
                 var constantExpression = (ConstantExpression)expression;
                 return ConvertValueToTypedPropertyExpression(constantExpression.Value, constantExpression.Type);
             }
-            isNotOriginal = false;
             return expression;
         }
 
