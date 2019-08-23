@@ -11,5 +11,7 @@ namespace NihFix.EfQueryCacheOptimizer.Sample.Entities
         public int Id { get; set; }
 
         public string Name { get; set; }
+
+        public bool IsActual { get; set; }
     }
 }

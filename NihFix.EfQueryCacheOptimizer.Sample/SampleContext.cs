@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 
 namespace NihFix.EfQueryCacheOptimizer.Sample
 {
-    public class SampleContext:DbContext
+    public class SampleContext : DbContext
     {
-
+        static SampleContext()
+        {
+            Database.SetInitializer(new DropCreateDatabaseAlways<SampleContext>());
+        }
         public DbSet<TestEntity> TestEntities { get; set; }
     }
 }

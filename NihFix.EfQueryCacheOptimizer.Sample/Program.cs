@@ -17,7 +17,9 @@ namespace NihFix.EfQueryCacheOptimizer.Sample
             {
                 context.Database.Log = Console.WriteLine;
                 var xr = new[] { 1, 2 };
-                var query = context.TestEntities.AsCacheOptimizedQueriable().Select(x => new { Id = x.Id, Name = "qwert" });
+                Expression<Func<TestEntity, xxx>> exp1 = t => new xxx { IsActual = t.IsActual };
+                Expression<Func<TestEntity, bool>> exp = t =>  !t.IsActual && t.Id == 1;
+                var query = context.TestEntities.AsCacheOptimizedQueriable().Where(t => !t.IsActual && t.Id==1);
                 query.ToList();
                 Console.ReadLine();
             }
@@ -28,6 +30,8 @@ namespace NihFix.EfQueryCacheOptimizer.Sample
             public int Id { get; set; }
 
             public string Name { get; set; }
+
+            public bool IsActual { get; set; }
         }
     }
 }

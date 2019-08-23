@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace NihFix.EfQueryCacheOptimizer.Visitor
 {
     public class CacheOptimizedExpressionVisitor : ExpressionVisitor
-    {       
+    {
 
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
@@ -18,10 +18,25 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
             return base.VisitMemberInit(node);
         }
 
+        protected override Expression VisitConditional(ConditionalExpression node)
+        {
+            bool expressionChanged = false;
+            var isTrue = TransformConstantToPropertyOrGetOriginalExpression(node.IfTrue, ref expressionChanged);
+            var isFalse = TransformConstantToPropertyOrGetOriginalExpression(node.IfFalse, ref expressionChanged);
+            if (expressionChanged)
+            {
+                var newExpression = Expression.Condition(node.Test, isTrue, isFalse);
+                return base.VisitConditional(newExpression);
+            }
+
+            return base.VisitConditional(node);
+        }
+
+
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
         {
             var changed = false;
-            var propertyExpr= TransformConstantToPropertyOrGetOriginalExpression(node.Expression, ref changed);
+            var propertyExpr = TransformConstantToPropertyOrGetOriginalExpression(node.Expression, ref changed);
             if (changed)
             {
                 var assignExpr = Expression.Bind(node.Member, propertyExpr);
@@ -34,7 +49,7 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
         protected override Expression VisitNew(NewExpression node)
         {
             var changed = false;
-            var propertyExprs = node.Arguments.Select(a=>TransformConstantToPropertyOrGetOriginalExpression(a, ref changed));
+            var propertyExprs = node.Arguments.Select(a => TransformConstantToPropertyOrGetOriginalExpression(a, ref changed));
             if (changed)
             {
                 var assignExpr = Expression.New(node.Constructor, propertyExprs, node.Members);
@@ -45,7 +60,7 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
 
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
-            
+
             return base.VisitLambda(node);
         }
 
@@ -84,6 +99,19 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
             }
             return optimizeIsSuccses ? VisitBinary(optimizedExpression) : base.VisitMethodCall(node);
         }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            if (node.Type == typeof(bool))
+            {
+                var trueVal = ConvertValueToTypedPropertyExpression(true, typeof(bool));
+                var binary = Expression.MakeBinary(ExpressionType.Equal, node, trueVal);
+                return binary;
+
+            }
+            return base.VisitMember(node);
+        }
+
 
         private bool TryOptimizeAny(MethodCallExpression node, out BinaryExpression expression)
         {
@@ -208,13 +236,18 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
             {
                 return Expression.Property(
                                         Expression.Constant(new { Value = (char)value }), "Value");
+            }else if (type.BaseType == typeof(Enum))
+            {
+                return Expression.Convert(Expression.Property(
+                                        Expression.Constant(new { Value = (Enum)value }), "Value"),type);
+                
             }
             throw new ArgumentException();
         }
 
         private bool TryGetCollectionFromMethod(MethodCallExpression node, out IEnumerable collection)
         {
-            if (node.Arguments[0] is MemberExpression member)
+            if (node.Arguments[0] is MemberExpression member && member.Expression.NodeType == ExpressionType.Constant)
             {
 
                 var getValueslambda = Expression.Lambda(member);
