@@ -15,12 +15,7 @@ namespace System.Linq
         {
             return new CacheOptimizedQueryable<TSource>(originalQueriable);
         }
-
-        //public static TResult Aggregate<TSource, TAccumulate, TResult>(this ICacheOptimizedQueryable<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func, Expression<Func<TAccumulate, TResult>> selector) { throw new NotImplementedException(); }
-
-        //public static TSource Aggregate<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TSource, TSource>> func) { throw new NotImplementedException(); }
-
-        //public static TAccumulate Aggregate<TSource, TAccumulate>(this ICacheOptimizedQueryable<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func) { throw new NotImplementedException(); }
+            
 
         public static bool All<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
         {
@@ -32,29 +27,9 @@ namespace System.Linq
             return DecorateMethod(source, predicate, (q, e) => q.Any(e));
         }
 
-        //public static double Average<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, int>> selector) { throw new NotImplementedException(); }
-
-        //public static double? Average<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, int?>> selector) { throw new NotImplementedException(); }
-
-        //public static float Average<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, float>> selector) { throw new NotImplementedException(); }
-
-        //public static float? Average<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, float?>> selector) { throw new NotImplementedException(); }
-
-        //public static double Average<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, long>> selector) { throw new NotImplementedException(); }
-
-        //public static double? Average<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, long?>> selector) { throw new NotImplementedException(); }
-
-        //public static double Average<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, double>> selector) { throw new NotImplementedException(); }
-
-        //public static double? Average<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, double?>> selector) { throw new NotImplementedException(); }
-
-        //public static decimal Average<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, decimal>> selector) { throw new NotImplementedException(); }
-
-        //public static decimal? Average<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector) { throw new NotImplementedException(); }
-
-        //public static int Count<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
-
-        //public static TSource First<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
+        public static TSource First<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+            return DecorateMethod(source, predicate, (q, e) => q.First(e));
+        }
 
         //public static TSource FirstOrDefault<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
 
@@ -100,10 +75,6 @@ namespace System.Linq
 
         //public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) { throw new NotImplementedException(); }
 
-        public static IQueryable<TResult> Select<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, int, TResult>> selector) {
-            var optimizedExpression = OptimizeExpressionForCache(selector);
-            return source.AsQueryable().Select(optimizedExpression);
-        }
 
         public static IQueryable<TResult> Select<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
         {
