@@ -18,7 +18,7 @@ namespace NihFix.EfQueryCacheOptimizer.Sample
                 var xr = new[] { 1, 2 };
                 Expression<Func<TestEntity, xxx>> exp1 = t => new xxx { IsActual = t.IsActual };
                 Expression<Func<TestEntity, bool>> exp = t =>  !t.IsActual && t.Id == 1;
-                var query = context.TestEntities.Select(t=>t.Id).Average()
+                var query = context.TestEntities.Select(t => t.Id).Average();
                 //query.ToList();
                 Console.ReadLine();
             }

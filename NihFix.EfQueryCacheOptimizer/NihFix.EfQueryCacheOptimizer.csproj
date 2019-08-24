@@ -51,6 +51,8 @@
     <Compile Include="CacheOptimizedQueryable.cs" />
     <Compile Include="Extentions\CacheOptimizedQueriableExtentions.cs" />
     <Compile Include="ICacheOptimizedQueryable.cs" />
+    <Compile Include="IOrderedCacheOptimizedQueryable.cs" />
+    <Compile Include="OrderedCacheOptimizedQueryable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visitor\CacheOptimizedExpressionVisitor.cs" />
   </ItemGroup>

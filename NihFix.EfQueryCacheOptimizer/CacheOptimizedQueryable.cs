@@ -34,7 +34,7 @@ namespace NihFix.EfQueryCacheOptimizer
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _origilQueriable.GetEnumerator();
+            return ((IEnumerable)_origilQueriable).GetEnumerator();
         }
     }
 }
