@@ -101,7 +101,9 @@ namespace System.Linq
             return source.AsQueryable().SelectMany(collectionSelector, resultSelector);
         }
 
-        //public static TSource Single<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
+        public static TSource Single<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+            return DecorateMethod(source, predicate, (q, e) => q.Single(e));
+        }
 
         //public static TSource SingleOrDefault<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
 
