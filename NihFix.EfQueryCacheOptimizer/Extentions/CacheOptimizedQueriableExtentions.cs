@@ -31,7 +31,9 @@ namespace System.Linq
             return DecorateMethod(source, predicate, (q, e) => q.First(e));
         }
 
-        //public static TSource FirstOrDefault<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
+        public static TSource FirstOrDefault<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+            return DecorateMethod(source, predicate, (q, e) => q.FirstOrDefault(e));
+        }
 
         //public static IQueryable<TResult> GroupBy<TSource, TKey, TElement, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector) { throw new NotImplementedException(); }
 
