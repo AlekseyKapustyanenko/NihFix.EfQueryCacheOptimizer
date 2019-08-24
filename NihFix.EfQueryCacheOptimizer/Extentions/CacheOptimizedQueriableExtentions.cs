@@ -78,16 +78,17 @@ namespace System.Linq
         }
 
 
-        //public static long LongCount<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
-
-        //public static TResult Max<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TResult>> selector) { throw new NotImplementedException(); }
-
-        //public static TResult Min<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TResult>> selector) { throw new NotImplementedException(); }
 
 
-        //public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) { throw new NotImplementedException(); }
 
-        //public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) { throw new NotImplementedException(); }
+        public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
+            return DecorateMethod(source, keySelector, (q, e) => q.OrderBy(e));
+        }
+
+        public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
+            return DecorateMethod(source, keySelector, (q, e) => q.OrderByDescending(e));
+
+        }
 
 
 
