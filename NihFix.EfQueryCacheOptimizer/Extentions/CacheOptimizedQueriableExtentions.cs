@@ -35,27 +35,39 @@ namespace System.Linq
             return DecorateMethod(source, predicate, (q, e) => q.FirstOrDefault(e));
         }
 
-        //public static IQueryable<TResult> GroupBy<TSource, TKey, TElement, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector) { throw new NotImplementedException(); }
+        public static IQueryable<TResult> GroupBy<TSource, TKey, TElement, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector) {
+            var keySelectorOptimised = OptimizeExpressionForCache(keySelector);
+            var elementSelectorOptimised = OptimizeExpressionForCache(elementSelector);
+            var resultSelectorOptimised = OptimizeExpressionForCache(resultSelector);
+            return source.AsQueryable().GroupBy(keySelectorOptimised, elementSelectorOptimised, resultSelectorOptimised).AsCacheOptimizedQueriable();
+        }
 
-        //public static IQueryable<TResult> GroupBy<TSource, TKey, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector) { throw new NotImplementedException(); }
+        public static IQueryable<TResult> GroupBy<TSource, TKey, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector) {
+            var keySelectorOptimised = OptimizeExpressionForCache(keySelector);
+            var resultSelectorOptimised = OptimizeExpressionForCache(resultSelector);
+            return source.AsQueryable().GroupBy(keySelectorOptimised, resultSelectorOptimised).AsCacheOptimizedQueriable();
+        }
 
-        //public static IQueryable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector) { throw new NotImplementedException(); }
+        public static IQueryable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector) {
+            var keySelectorOptimised = OptimizeExpressionForCache(keySelector);
+            var elementSelectorOptimised = OptimizeExpressionForCache(elementSelector);
+            return source.AsQueryable().GroupBy(keySelectorOptimised, elementSelectorOptimised).AsCacheOptimizedQueriable();
+        }
 
-        //public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) { throw new NotImplementedException(); }
+        public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
+            var keySelectorOptimised = OptimizeExpressionForCache(keySelector);
+            return source.AsQueryable().GroupBy(keySelectorOptimised).AsCacheOptimizedQueriable();
+        }
 
-        //public static IQueryable<TResult> GroupBy<TSource, TKey, TElement, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) { throw new NotImplementedException(); }
 
-        //public static IQueryable<TResult> GroupBy<TSource, TKey, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) { throw new NotImplementedException(); }
+        //TODO: ADD WARNING FOR IQueriable And IEnumerable Outer
+        public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this ICacheOptimizedQueryable<TOuter> outer, ICacheOptimizedQueryable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector) {
+            var outerSelecterOptimized = OptimizeExpressionForCache(outerKeySelector);
+            var innerSelecterOptimized = OptimizeExpressionForCache(innerKeySelector);
+            var resultSelecterOptimized = OptimizeExpressionForCache(resultSelector);
+            return outer.AsQueryable().GroupJoin(inner.AsQueryable(), outerSelecterOptimized, innerSelecterOptimized, resultSelecterOptimized);
+        }
 
-        //public static IQueryable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, IEqualityComparer<TKey> comparer) { throw new NotImplementedException(); }
-
-        //public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IEqualityComparer<TKey> comparer) { throw new NotImplementedException(); }
-
-        //public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector, IEqualityComparer<TKey> comparer) { throw new NotImplementedException(); }
-
-        //public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector) { throw new NotImplementedException(); }
-
-        //public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector, IEqualityComparer<TKey> comparer) { throw new NotImplementedException(); }
 
         //public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector) { throw new NotImplementedException(); }
 
@@ -69,13 +81,11 @@ namespace System.Linq
 
         //public static TResult Min<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TResult>> selector) { throw new NotImplementedException(); }
 
-        //public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) { throw new NotImplementedException(); }
 
         //public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) { throw new NotImplementedException(); }
 
         //public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) { throw new NotImplementedException(); }
 
-        //public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) { throw new NotImplementedException(); }
 
 
         public static IQueryable<TResult> Select<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
@@ -124,13 +134,11 @@ namespace System.Linq
 
         //public static IQueryable<TSource> TakeWhile<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, int, bool>> predicate) { throw new NotImplementedException(); }
 
-        //public static IOrderedQueryable<TSource> ThenBy<TSource, TKey>(this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) { throw new NotImplementedException(); }
 
         //public static IOrderedQueryable<TSource> ThenBy<TSource, TKey>(this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) { throw new NotImplementedException(); }
 
         //public static IOrderedQueryable<TSource> ThenByDescending<TSource, TKey>(this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) { throw new NotImplementedException(); }
 
-        //public static IOrderedQueryable<TSource> ThenByDescending<TSource, TKey>(this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer) { throw new NotImplementedException(); }
 
         /// <inheritdoc cref="CacheOptimizedQueriableExtentions.Where{TSource}(IQueryable{TSource}, Expression{Func{TSource, bool}})"/>
         public static ICacheOptimizedQueryable<TSource> Where<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
