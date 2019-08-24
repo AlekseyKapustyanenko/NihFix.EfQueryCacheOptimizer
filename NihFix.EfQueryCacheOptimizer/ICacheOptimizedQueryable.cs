@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NihFix.EfQueryCacheOptimizer
+namespace System.Linq
 {
     public interface ICacheOptimizedQueryable<out T>:IQueryable<T>
     {

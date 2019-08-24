@@ -10,71 +10,9 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
 {
     public class CacheOptimizedExpressionVisitor : ExpressionVisitor
     {
-
-        protected override Expression VisitMemberInit(MemberInitExpression node)
+        protected override Expression VisitConstant(ConstantExpression node)
         {
-            //var newBindings = node.Bindings.Select(b => TransformConstantToPropertyOrGetOriginalExpression(b.Member., out _));
-
-            return base.VisitMemberInit(node);
-        }
-
-        protected override Expression VisitConditional(ConditionalExpression node)
-        {
-            bool expressionChanged = false;
-            var isTrue = TransformConstantToPropertyOrGetOriginalExpression(node.IfTrue, ref expressionChanged);
-            var isFalse = TransformConstantToPropertyOrGetOriginalExpression(node.IfFalse, ref expressionChanged);
-            if (expressionChanged)
-            {
-                var newExpression = Expression.Condition(node.Test, isTrue, isFalse);
-                return base.VisitConditional(newExpression);
-            }
-
-            return base.VisitConditional(node);
-        }
-
-
-        protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
-        {
-            var changed = false;
-            var propertyExpr = TransformConstantToPropertyOrGetOriginalExpression(node.Expression, ref changed);
-            if (changed)
-            {
-                var assignExpr = Expression.Bind(node.Member, propertyExpr);
-                return base.VisitMemberAssignment(assignExpr);
-            }
-            return base.VisitMemberAssignment(node);
-        }
-
-
-        protected override Expression VisitNew(NewExpression node)
-        {
-            var changed = false;
-            var propertyExprs = node.Arguments.Select(a => TransformConstantToPropertyOrGetOriginalExpression(a, ref changed));
-            if (changed)
-            {
-                var assignExpr = Expression.New(node.Constructor, propertyExprs, node.Members);
-                return base.VisitNew(assignExpr);
-            }
-            return base.VisitNew(node);
-        }
-
-        protected override Expression VisitLambda<T>(Expression<T> node)
-        {
-
-            return base.VisitLambda(node);
-        }
-
-        protected override Expression VisitBinary(BinaryExpression node)
-        {
-            bool expressionChanged = false;
-            var leftExpression = TransformConstantToPropertyOrGetOriginalExpression(node.Left, ref expressionChanged);
-            var rightExpression = TransformConstantToPropertyOrGetOriginalExpression(node.Right, ref expressionChanged);
-            if (expressionChanged)
-            {
-                var newExpression = Expression.MakeBinary(node.NodeType, leftExpression, rightExpression);
-                return base.VisitBinary(newExpression);
-            }
-            return base.VisitBinary(node);
+            return ConvertValueToTypedPropertyExpression(node.Value, node.Type);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -171,78 +109,10 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
             }
         }
 
-
-
-        private Expression TransformConstantToPropertyOrGetOriginalExpression(Expression expression, ref bool isNotOriginal)
-        {
-            if (expression.NodeType == ExpressionType.Constant)
-            {
-                isNotOriginal = true;
-                var constantExpression = (ConstantExpression)expression;
-                return ConvertValueToTypedPropertyExpression(constantExpression.Value, constantExpression.Type);
-            }
-            return expression;
-        }
-
-
         private Expression ConvertValueToTypedPropertyExpression(object value, Type type)
         {
-            if (type == typeof(int))
-            {
-                return Expression.Property(
-                    Expression.Constant(new { Value = (int)value }), "Value");
-            }
-            else if (type == typeof(string))
-            {
-                return Expression.Property(
-                                        Expression.Constant(new { Value = (string)value }), "Value");
-            }
-            else if (type == typeof(Guid))
-            {
-                return Expression.Property(
-                                        Expression.Constant(new { Value = (Guid)value }), "Value");
-            }
-            else if (type == typeof(DateTime))
-            {
-                return Expression.Property(
-                                        Expression.Constant(new { Value = (DateTime)value }), "Value");
-            }
-            else if (type == typeof(float))
-            {
-                return Expression.Property(
-                                        Expression.Constant(new { Value = (float)value }), "Value");
-            }
-            else if (type == typeof(double))
-            {
-                return Expression.Property(
-                                        Expression.Constant(new { Value = (double)value }), "Value");
-            }
-            else if (type == typeof(bool))
-            {
-                return Expression.Property(
-                                        Expression.Constant(new { Value = (bool)value }), "Value");
-            }
-            else if (type == typeof(byte))
-            {
-                return Expression.Property(
-                                        Expression.Constant(new { Value = (byte)value }), "Value");
-            }
-            else if (type == typeof(decimal))
-            {
-                return Expression.Property(
-                                        Expression.Constant(new { Value = (decimal)value }), "Value");
-            }
-            else if (type == typeof(char))
-            {
-                return Expression.Property(
-                                        Expression.Constant(new { Value = (char)value }), "Value");
-            }else if (type.BaseType == typeof(Enum))
-            {
-                return Expression.Convert(Expression.Property(
-                                        Expression.Constant(new { Value = (Enum)value }), "Value"),type);
-                
-            }
-            throw new ArgumentException();
+            return Expression.Convert(Expression.Property(
+                                        Expression.Constant(new { Value = value }), "Value"), type);
         }
 
         private bool TryGetCollectionFromMethod(MethodCallExpression node, out IEnumerable collection)
@@ -271,7 +141,7 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
             BinaryExpression binaryExpression = null;
             foreach (var el in values)
             {
-                var propExpression = ConvertValueToTypedPropertyExpression(el, el.GetType());
+                var propExpression = Expression.Constant(el);
                 var expr = Expression.MakeBinary(operation, propExpression, selector);
                 if (binaryExpression == null)
                 {

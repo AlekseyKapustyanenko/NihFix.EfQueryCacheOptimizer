@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>1.1.0.0</version>
+    <title>NihFix.EfQueryCacheOptimizer</title>
+    <authors>Aleksey Kapustyanenko</authors>
+    <owners>Aleksey Kapustyanenko</owners>
+    <license type="file">LICENSE.md</license>    
+    <projectUrl>https://github.com/alexeykap/NihFix.EfQueryCacheOptimizer</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Optimize EF6 queries for second level ef cache.</description>
+    <releaseNotes>First release. Optimize Constant, Any, All, Contains</releaseNotes>
+    <copyright>Copyright 2019</copyright>
+    <tags>EntityFramework EF6 Optimization Query</tags>
+  </metadata>
+  <files>
+    <file src="LICENSE.md" target="" />
+  </files>
+</package>

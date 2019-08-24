@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NihFix.EfQueryCacheOptimizer
 {
-    public class CacheOptimizedQueryable<T> : ICacheOptimizedQueryable<T>
+    internal class CacheOptimizedQueryable<T> : ICacheOptimizedQueryable<T>
     {
         public readonly IQueryable<T> _origilQueriable;
 

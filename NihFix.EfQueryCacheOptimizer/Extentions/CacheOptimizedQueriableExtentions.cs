@@ -1,4 +1,5 @@
-﻿using NihFix.EfQueryCacheOptimizer.Visitor;
+﻿using NihFix.EfQueryCacheOptimizer;
+using NihFix.EfQueryCacheOptimizer.Visitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NihFix.EfQueryCacheOptimizer.Extentions
+namespace System.Linq
 {
     public static class CacheOptimizedQueriableExtentions
     {
