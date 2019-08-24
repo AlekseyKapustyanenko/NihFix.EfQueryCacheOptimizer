@@ -12,15 +12,15 @@ namespace NihFix.EfQueryCacheOptimizer
     {
         private readonly IOrderedQueryable<T> _orderedQueriable;
 
-        public OrderedCacheOptimizedQueryable(IOrderedQueryable<T> orderedQueriable):base(orderedQueriable)
+        public OrderedCacheOptimizedQueryable(IOrderedQueryable<T> orderedQueriable) : base(orderedQueriable)
         {
-            orderedQueriable = _orderedQueriable;
+            _orderedQueriable = orderedQueriable;
         }
-       
+
         public IOrderedQueryable<T> AsOrdetedQueriable()
         {
             return _orderedQueriable;
-        }       
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
