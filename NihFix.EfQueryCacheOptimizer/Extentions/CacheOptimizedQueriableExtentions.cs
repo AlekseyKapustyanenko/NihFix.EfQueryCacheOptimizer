@@ -69,11 +69,14 @@ namespace System.Linq
         }
 
 
-        //public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector) { throw new NotImplementedException(); }
+        //TODO: ADD WARNING FOR IQueriable And IEnumerable Outer
+        public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this ICacheOptimizedQueryable<TOuter> outer, ICacheOptimizedQueryable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector) {
+            var outerSelecterOptimized = OptimizeExpressionForCache(outerKeySelector);
+            var innerSelecterOptimized = OptimizeExpressionForCache(innerKeySelector);
+            var resultSelecterOptimized = OptimizeExpressionForCache(resultSelector);
+            return outer.AsQueryable().Join(inner.AsQueryable(), outerSelecterOptimized, innerSelecterOptimized, resultSelecterOptimized);
+        }
 
-        //public static TSource Last<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
-
-        //public static TSource LastOrDefault<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
 
         //public static long LongCount<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
 
