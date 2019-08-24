@@ -131,8 +131,6 @@ namespace System.Linq
             return DecorateMethod(source, predicate, (q, e) => q.Where(e)).AsCacheOptimizedQueriable();
         }
 
-        //public static IQueryable<TResult> Zip<TFirst, TSecond, TResult>(this IQueryable<TFirst> source1, IEnumerable<TSecond> source2, Expression<Func<TFirst, TSecond, TResult>> resultSelector) { throw new NotImplementedException(); }
-
         private static T OptimizeExpressionForCache<T>(T expression) where T : Expression
         {
             var visitor = new CacheOptimizedExpressionVisitor();
