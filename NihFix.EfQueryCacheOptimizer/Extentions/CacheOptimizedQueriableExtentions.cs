@@ -105,7 +105,9 @@ namespace System.Linq
             return DecorateMethod(source, predicate, (q, e) => q.Single(e));
         }
 
-        //public static TSource SingleOrDefault<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
+        public static TSource SingleOrDefault<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) {
+            return DecorateMethod(source, predicate, (q, e) => q.SingleOrDefault(e));
+        }
 
         //public static IQueryable<TSource> SkipWhile<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
 
