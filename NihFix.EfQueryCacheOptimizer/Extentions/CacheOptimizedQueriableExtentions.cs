@@ -77,34 +77,29 @@ namespace System.Linq
             return outer.AsQueryable().Join(inner.AsQueryable(), outerSelecterOptimized, innerSelecterOptimized, resultSelecterOptimized);
         }
 
-
-
-
-
         public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
             return DecorateMethod(source, keySelector, (q, e) => q.OrderBy(e));
         }
 
         public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
             return DecorateMethod(source, keySelector, (q, e) => q.OrderByDescending(e));
-
         }
-
-
-
+               
         public static IQueryable<TResult> Select<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
         {
             var optimizedExpression = OptimizeExpressionForCache(selector);
             return source.AsQueryable().Select(optimizedExpression);
         }
 
-        //public static IQueryable<TResult> SelectMany<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector) { throw new NotImplementedException(); }
+        public static IQueryable<TResult> SelectMany<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector) {
+            return DecorateMethod(source, selector, (q, e) => q.SelectMany(e));
+        }
 
-        //public static IQueryable<TResult> SelectMany<TSource, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TResult>>> selector) { throw new NotImplementedException(); }
-
-        //public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector) { throw new NotImplementedException(); }
-
-        //public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector) { throw new NotImplementedException(); }
+        public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector) {
+            var collectionSelectorOptimized = OptimizeExpressionForCache(collectionSelector);
+            var resultSelectorOptimized = OptimizeExpressionForCache(resultSelector);
+            return source.AsQueryable().SelectMany(collectionSelector, resultSelector);
+        }
 
         //public static TSource Single<TSource>(this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) { throw new NotImplementedException(); }
 
