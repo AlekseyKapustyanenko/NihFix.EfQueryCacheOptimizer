@@ -10,9 +10,10 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
 {
     public class CacheOptimizedExpressionVisitor : ExpressionVisitor
     {
+        
         protected override Expression VisitConstant(ConstantExpression node)
-        {
-            return ConvertValueToTypedPropertyExpression(node.Value, node.Type);
+        {            
+                return ConvertValueToTypedPropertyExpression(node.Value, node.Type);           
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -111,8 +112,63 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
 
         private Expression ConvertValueToTypedPropertyExpression(object value, Type type)
         {
-            return Expression.Convert(Expression.Property(
+            if (type == typeof(int))
+            {
+                return Expression.Property(
+                    Expression.Constant(new { Value = (int)value }), "Value");
+            }
+            else if (type == typeof(string))
+            {
+                return Expression.Property(
+                                        Expression.Constant(new { Value = (string)value }), "Value");
+            }
+            else if (type == typeof(Guid))
+            {
+                return Expression.Property(
+                                        Expression.Constant(new { Value = (Guid)value }), "Value");
+            }
+            else if (type == typeof(DateTime))
+            {
+                return Expression.Property(
+                                        Expression.Constant(new { Value = (DateTime)value }), "Value");
+            }
+            else if (type == typeof(float))
+            {
+                return Expression.Property(
+                                        Expression.Constant(new { Value = (float)value }), "Value");
+            }
+            else if (type == typeof(double))
+            {
+                return Expression.Property(
+                                        Expression.Constant(new { Value = (double)value }), "Value");
+            }
+            else if (type == typeof(bool))
+            {
+                return Expression.Property(
+                                        Expression.Constant(new { Value = (bool)value }), "Value");
+            }
+            else if (type == typeof(byte))
+            {
+                return Expression.Property(
+                                        Expression.Constant(new { Value = (byte)value }), "Value");
+            }
+            else if (type == typeof(decimal))
+            {
+                return Expression.Property(
+                                        Expression.Constant(new { Value = (decimal)value }), "Value");
+            }
+            else if (type == typeof(char))
+            {
+                return Expression.Property(
+                                        Expression.Constant(new { Value = (char)value }), "Value");
+            }
+            else 
+            {
+                return Expression.Convert(Expression.Property(
                                         Expression.Constant(new { Value = value }), "Value"), type);
+
+            }
+            
         }
 
         private bool TryGetCollectionFromMethod(MethodCallExpression node, out IEnumerable collection)

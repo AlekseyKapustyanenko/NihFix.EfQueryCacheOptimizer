@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheOptimizedQueryable.cs" />
+    <Compile Include="CacheOptimizedQueryProvider.cs" />
     <Compile Include="Extentions\CacheOptimizedQueriableExtentions.cs" />
     <Compile Include="ICacheOptimizedQueryable.cs" />
     <Compile Include="IOrderedCacheOptimizedQueryable.cs" />

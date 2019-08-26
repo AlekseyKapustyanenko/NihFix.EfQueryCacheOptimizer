@@ -8,19 +8,27 @@ using System.Threading.Tasks;
 
 namespace NihFix.EfQueryCacheOptimizer
 {
-    internal class CacheOptimizedQueryable<T> : ICacheOptimizedQueryable<T>
+    internal class CacheOptimizedQueryable<T> : IQueryable<T>, IOrderedQueryable<T>
     {
-        public readonly IQueryable<T> _origilQueriable;
+        private readonly IQueryable<T> _origilQueriable;
 
         public CacheOptimizedQueryable(IQueryable<T> origilQueriable)
         {
             _origilQueriable = origilQueriable;
+            Expression = origilQueriable.Expression;
         }
-        public Expression Expression => _origilQueriable.Expression;
+
+        public CacheOptimizedQueryable(IQueryable<T> origilQueriable, Expression originalExpression)
+        {
+            _origilQueriable = origilQueriable;
+            Expression = originalExpression;
+        }
+        public Expression Expression { get; }
+
 
         public Type ElementType => _origilQueriable.ElementType;
 
-        public IQueryProvider Provider => _origilQueriable.Provider;
+        public IQueryProvider Provider => new CacheOptimizedQueryProvider(_origilQueriable.Provider);
 
         public IQueryable<T> AsQueryable()
         {
@@ -28,6 +36,46 @@ namespace NihFix.EfQueryCacheOptimizer
         }
 
         public IEnumerator<T> GetEnumerator()
+        {
+            return _origilQueriable.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)_origilQueriable).GetEnumerator();
+        }
+
+        
+    }
+
+    internal class CacheOptimizedQueryable : IQueryable
+    {
+        public readonly IQueryable _origilQueriable;
+
+        public CacheOptimizedQueryable(IQueryable origilQueriable)
+        {
+            _origilQueriable = origilQueriable;
+            Expression = origilQueriable.Expression;
+        }
+
+        public CacheOptimizedQueryable(IQueryable origilQueriable, Expression originalExpression)
+        {
+            _origilQueriable = origilQueriable;
+            Expression = originalExpression;
+        }
+
+        public Expression Expression { get; }
+
+        public Type ElementType => _origilQueriable.ElementType;
+
+        public IQueryProvider Provider => new CacheOptimizedQueryProvider(_origilQueriable.Provider);
+
+        public IQueryable AsQueryable()
+        {
+            return _origilQueriable;
+        }
+
+        public IEnumerator GetEnumerator()
         {
             return _origilQueriable.GetEnumerator();
         }
