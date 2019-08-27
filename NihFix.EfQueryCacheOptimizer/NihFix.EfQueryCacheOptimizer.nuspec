@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>1.2.2.0</version>
+    <version>1.2.3.0</version>
     <title>NihFix.EfQueryCacheOptimizer</title>
     <authors>Aleksey Kapustyanenko</authors>
     <owners>Aleksey Kapustyanenko</owners>
