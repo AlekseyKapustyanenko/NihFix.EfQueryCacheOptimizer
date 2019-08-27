@@ -16,11 +16,10 @@ namespace NihFix.EfQueryCacheOptimizer.Sample
             {
                 context.Database.Log = Console.WriteLine;
                 var xr = new[] { 1, 2 };
-                var i = false;
                 Expression<Func<TestEntity, xxx>> exp1 = t => new xxx { IsActual = t.IsActual };
-                Expression<Func<TestEntity, bool>> exp = t =>  !t.IsActual== false && t.Id == 1;
-                var query = context.TestEntities.AsCacheOptimizedQueriable().Where(exp).OrderBy(x=>x.Id);
-                query.ToList();
+                Expression<Func<TestEntity, bool>> exp = t =>  !t.IsActual && t.Id == 1;
+                var query = context.TestEntities.Select(t => t.Id).Average();
+                //query.ToList();
                 Console.ReadLine();
             }
         }
