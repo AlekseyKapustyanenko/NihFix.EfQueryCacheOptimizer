@@ -10,21 +10,21 @@ namespace NihFix.EfQueryCacheOptimizer
 {
     internal class OrderedCacheOptimizedQueryable<T> : CacheOptimizedQueryable<T>, IOrderedCacheOptimizedQueryable<T>
     {
-        private readonly IOrderedQueryable<T> _orderedQueriable;
+        private readonly IOrderedQueryable<T> _orderedQueryable;
 
-        public OrderedCacheOptimizedQueryable(IOrderedQueryable<T> orderedQueriable) : base(orderedQueriable)
+        public OrderedCacheOptimizedQueryable(IOrderedQueryable<T> orderedQueryable) : base(orderedQueryable)
         {
-            _orderedQueriable = orderedQueriable;
+            _orderedQueryable = orderedQueryable;
         }
 
-        public IOrderedQueryable<T> AsOrdetedQueriable()
+        public IOrderedQueryable<T> AsOrderedQueryable()
         {
-            return _orderedQueriable;
+            return _orderedQueryable;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable)_orderedQueriable).GetEnumerator();
+            return ((IEnumerable)_orderedQueryable).GetEnumerator();
         }
     }
 }

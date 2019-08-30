@@ -10,31 +10,31 @@ namespace NihFix.EfQueryCacheOptimizer
 {
     internal class CacheOptimizedQueryable<T> : ICacheOptimizedQueryable<T>
     {
-        public readonly IQueryable<T> _origilQueriable;
+        private readonly IQueryable<T> _originalQueryable;
 
-        public CacheOptimizedQueryable(IQueryable<T> origilQueriable)
+        public CacheOptimizedQueryable(IQueryable<T> originalQueryable)
         {
-            _origilQueriable = origilQueriable;
+            _originalQueryable = originalQueryable;
         }
-        public Expression Expression => _origilQueriable.Expression;
+        public Expression Expression => _originalQueryable.Expression;
 
-        public Type ElementType => _origilQueriable.ElementType;
+        public Type ElementType => _originalQueryable.ElementType;
 
-        public IQueryProvider Provider => _origilQueriable.Provider;
+        public IQueryProvider Provider => _originalQueryable.Provider;
 
         public IQueryable<T> AsQueryable()
         {
-            return _origilQueriable;
+            return _originalQueryable;
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            return _origilQueriable.GetEnumerator();
+            return _originalQueryable.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable)_origilQueriable).GetEnumerator();
+            return ((IEnumerable)_originalQueryable).GetEnumerator();
         }
     }
 }
