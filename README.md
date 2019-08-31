@@ -10,11 +10,11 @@ PM> Install-Package NihFix.EfQueryCacheOptimizer
 Example:
 ```C#
 var interestingIds=new[]{1,2,3};
-context.Orders.AsCacheOptimizedQueriable().Where(o=>o.IsActual && interestingIds.Contains(o.Id));
+context.Orders.AsCacheOptimizedQueryable().Where(o=>o.IsActual && interestingIds.Contains(o.Id));
 ```
 or
 
 ```C#
 var interestingIds=new[]{1,2,3};
-context.Set<order>().AsCacheOptimizedQueriable().Where(o=>o.IsActual && interestingIds.Contains(o.Id));
+context.Set<order>().AsCacheOptimizedQueryable().Where(o=>o.IsActual && interestingIds.Contains(o.Id));
 ```
