@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NihFix.EfQueryCacheOptimizer.Visitor
 {
     public class CacheOptimizedExpressionVisitor : ExpressionVisitor
     {
+        private readonly IOptimizationConfig _optimizationConfig;
+
+        public CacheOptimizedExpressionVisitor(IOptimizationConfig optimizationConfig)
+        {
+            _optimizationConfig = optimizationConfig;
+        }
+
         protected override Expression VisitConstant(ConstantExpression node)
         {
             return ConvertValueToTypedPropertyExpression(node.Value, node.Type);
@@ -17,25 +21,25 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            var optimizeIsSuccses = false;
+            var optimizeIsSuccess = false;
             BinaryExpression optimizedExpression = null;
             if (node.Method.DeclaringType == typeof(Enumerable))
             {
                 switch (node.Method.Name)
                 {
                     case "Any":
-                        optimizeIsSuccses = TryOptimizeAny(node, out optimizedExpression);
+                        optimizeIsSuccess = TryOptimizeAny(node, out optimizedExpression);
                         break;
                     case "Contains":
-                        optimizeIsSuccses = TryOptimizeContains(node, out optimizedExpression);
+                        optimizeIsSuccess = TryOptimizeContains(node, out optimizedExpression);
                         break;
                     case "All":
-                        optimizeIsSuccses = TryOptimizeAll(node, out optimizedExpression);
+                        optimizeIsSuccess = TryOptimizeAll(node, out optimizedExpression);
                         break;
                 }
             }
 
-            return optimizeIsSuccses ? VisitBinary(optimizedExpression) : base.VisitMethodCall(node);
+            return optimizeIsSuccess ? VisitBinary(optimizedExpression) : base.VisitMethodCall(node);
         }
 
         protected override Expression VisitMember(MemberExpression node)
@@ -179,7 +183,7 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
             {
                 var getValuesLambda = Expression.Lambda(member);
                 var getValuesMethod = getValuesLambda.Compile();
-                collection = (IEnumerable) getValuesMethod.DynamicInvoke();
+                collection = GetOptimalEnumerable((IEnumerable) getValuesMethod.DynamicInvoke());
                 return true;
             }
 
@@ -203,6 +207,22 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
             }
 
             return binaryExpression;
+        }
+
+        private IEnumerable GetOptimalEnumerable(IEnumerable enumerable)
+        {
+            var typedEnumerable = enumerable as object[] ?? enumerable.Cast<object>().ToArray();
+            var enumerableLength = typedEnumerable.Length;
+            if (enumerableLength >= _optimizationConfig.OptimalCollectionSize || enumerableLength == 0)
+            {
+                return typedEnumerable;
+            }
+            else
+            {
+                var additionalElementsCount = _optimizationConfig.OptimalCollectionSize - enumerableLength;
+                var additionalElements = Enumerable.Repeat(typedEnumerable.First(), additionalElementsCount);
+                return typedEnumerable.Concat(additionalElements);
+            }
         }
     }
 }

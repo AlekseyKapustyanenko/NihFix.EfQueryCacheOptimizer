@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+
 // ReSharper disable UnusedMember.Global
 
 // ReSharper disable once CheckNamespace
@@ -54,9 +55,10 @@ namespace System.Linq
             Expression<Func<TSource, TElement>> elementSelector,
             Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
         {
-            var keySelectorOptimised = OptimizeExpressionForCache(keySelector);
-            var elementSelectorOptimised = OptimizeExpressionForCache(elementSelector);
-            var resultSelectorOptimised = OptimizeExpressionForCache(resultSelector);
+            var optimizationConfig = source.OptimizationConfig;
+            var keySelectorOptimised = OptimizeExpressionForCache(keySelector, optimizationConfig);
+            var elementSelectorOptimised = OptimizeExpressionForCache(elementSelector, optimizationConfig);
+            var resultSelectorOptimised = OptimizeExpressionForCache(resultSelector, optimizationConfig);
             return source.AsQueryable().GroupBy(keySelectorOptimised, elementSelectorOptimised, resultSelectorOptimised)
                 .AsCacheOptimizedQueryable();
         }
@@ -65,8 +67,9 @@ namespace System.Linq
             Expression<Func<TSource, TKey>> keySelector,
             Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector)
         {
-            var keySelectorOptimised = OptimizeExpressionForCache(keySelector);
-            var resultSelectorOptimised = OptimizeExpressionForCache(resultSelector);
+            var optimizationConfig = source.OptimizationConfig;
+            var keySelectorOptimised = OptimizeExpressionForCache(keySelector, optimizationConfig);
+            var resultSelectorOptimised = OptimizeExpressionForCache(resultSelector, optimizationConfig);
             return source.AsQueryable().GroupBy(keySelectorOptimised, resultSelectorOptimised)
                 .AsCacheOptimizedQueryable();
         }
@@ -75,8 +78,9 @@ namespace System.Linq
             this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector,
             Expression<Func<TSource, TElement>> elementSelector)
         {
-            var keySelectorOptimised = OptimizeExpressionForCache(keySelector);
-            var elementSelectorOptimised = OptimizeExpressionForCache(elementSelector);
+            var optimizationConfig = source.OptimizationConfig;
+            var keySelectorOptimised = OptimizeExpressionForCache(keySelector, optimizationConfig);
+            var elementSelectorOptimised = OptimizeExpressionForCache(elementSelector, optimizationConfig);
             return source.AsQueryable().GroupBy(keySelectorOptimised, elementSelectorOptimised)
                 .AsCacheOptimizedQueryable();
         }
@@ -84,7 +88,8 @@ namespace System.Linq
         public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(
             this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            var keySelectorOptimised = OptimizeExpressionForCache(keySelector);
+            var optimizationConfig = source.OptimizationConfig;
+            var keySelectorOptimised = OptimizeExpressionForCache(keySelector, optimizationConfig);
             return source.AsQueryable().GroupBy(keySelectorOptimised).AsCacheOptimizedQueryable();
         }
 
@@ -94,9 +99,10 @@ namespace System.Linq
             Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector,
             Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
         {
-            var outerSelectorOptimized = OptimizeExpressionForCache(outerKeySelector);
-            var innerSelectorOptimized = OptimizeExpressionForCache(innerKeySelector);
-            var resultSelectorOptimized = OptimizeExpressionForCache(resultSelector);
+            var optimizationConfig = outer.OptimizationConfig;
+            var outerSelectorOptimized = OptimizeExpressionForCache(outerKeySelector, optimizationConfig);
+            var innerSelectorOptimized = OptimizeExpressionForCache(innerKeySelector, optimizationConfig);
+            var resultSelectorOptimized = OptimizeExpressionForCache(resultSelector, optimizationConfig);
             return outer.AsQueryable().GroupJoin(inner.AsQueryable(), outerSelectorOptimized, innerSelectorOptimized,
                 resultSelectorOptimized);
         }
@@ -107,9 +113,10 @@ namespace System.Linq
             Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector,
             Expression<Func<TOuter, TInner, TResult>> resultSelector)
         {
-            var outerSelectorOptimized = OptimizeExpressionForCache(outerKeySelector);
-            var innerSelectorOptimized = OptimizeExpressionForCache(innerKeySelector);
-            var resultSelectorOptimized = OptimizeExpressionForCache(resultSelector);
+            var optimizationConfig = outer.OptimizationConfig;
+            var outerSelectorOptimized = OptimizeExpressionForCache(outerKeySelector, optimizationConfig);
+            var innerSelectorOptimized = OptimizeExpressionForCache(innerKeySelector, optimizationConfig);
+            var resultSelectorOptimized = OptimizeExpressionForCache(resultSelector, optimizationConfig);
             return outer.AsQueryable().Join(inner.AsQueryable(), outerSelectorOptimized, innerSelectorOptimized,
                 resultSelectorOptimized);
         }
@@ -130,7 +137,8 @@ namespace System.Linq
         public static ICacheOptimizedQueryable<TResult> Select<TSource, TResult>(
             this ICacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
         {
-            var optimizedExpression = OptimizeExpressionForCache(selector);
+            var optimizationConfig = source.OptimizationConfig;
+            var optimizedExpression = OptimizeExpressionForCache(selector, optimizationConfig);
             return source.AsQueryable().Select(optimizedExpression).AsCacheOptimizedQueryable();
         }
 
@@ -145,9 +153,11 @@ namespace System.Linq
             Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector,
             Expression<Func<TSource, TCollection, TResult>> resultSelector)
         {
-            var collectionSelectorOptimized = OptimizeExpressionForCache(collectionSelector);
-            var resultSelectorOptimized = OptimizeExpressionForCache(resultSelector);
-            return source.AsQueryable().SelectMany(collectionSelectorOptimized, resultSelectorOptimized).AsCacheOptimizedQueryable();
+            var optimizationConfig = source.OptimizationConfig;
+            var collectionSelectorOptimized = OptimizeExpressionForCache(collectionSelector, optimizationConfig);
+            var resultSelectorOptimized = OptimizeExpressionForCache(resultSelector, optimizationConfig);
+            return source.AsQueryable().SelectMany(collectionSelectorOptimized, resultSelectorOptimized)
+                .AsCacheOptimizedQueryable();
         }
 
         public static TSource Single<TSource>(this ICacheOptimizedQueryable<TSource> source,
@@ -165,14 +175,16 @@ namespace System.Linq
         public static IOrderedCacheOptimizedQueryable<TSource> ThenBy<TSource, TKey>(
             this IOrderedCacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            var keySelectorOptimized = OptimizeExpressionForCache(keySelector);
+            var optimizationConfig = source.OptimizationConfig;
+            var keySelectorOptimized = OptimizeExpressionForCache(keySelector, optimizationConfig);
             return source.AsOrderedQueryable().ThenBy(keySelectorOptimized).AsOrderedCacheOptimizedQueryable();
         }
 
         public static IOrderedCacheOptimizedQueryable<TSource> ThenByDescending<TSource, TKey>(
             this IOrderedCacheOptimizedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            var keySelectorOptimized = OptimizeExpressionForCache(keySelector);
+            var optimizationConfig = source.OptimizationConfig;
+            var keySelectorOptimized = OptimizeExpressionForCache(keySelector, optimizationConfig);
             return source.AsOrderedQueryable().ThenByDescending(keySelectorOptimized)
                 .AsOrderedCacheOptimizedQueryable();
         }
@@ -189,9 +201,10 @@ namespace System.Linq
             return DecorateMethod(source, predicate, (q, e) => q.Where(e)).AsCacheOptimizedQueryable();
         }
 
-        private static T OptimizeExpressionForCache<T>(T expression) where T : Expression
+        private static T OptimizeExpressionForCache<T>(T expression, IOptimizationConfig optimizationConfig)
+            where T : Expression
         {
-            var visitor = new CacheOptimizedExpressionVisitor();
+            var visitor = new CacheOptimizedExpressionVisitor(optimizationConfig);
             var optimizedExpression = (T) visitor.Visit(expression);
             return optimizedExpression;
         }
@@ -199,7 +212,8 @@ namespace System.Linq
         private static TOut DecorateMethod<TSource, TExpression, TOut>(this ICacheOptimizedQueryable<TSource> source,
             TExpression expression, Func<IQueryable<TSource>, TExpression, TOut> method) where TExpression : Expression
         {
-            var optimizedExpression = OptimizeExpressionForCache(expression);
+            var optimizationConfig = source.OptimizationConfig;
+            var optimizedExpression = OptimizeExpressionForCache(expression, optimizationConfig);
             var query = method(source.AsQueryable(), optimizedExpression);
             return query;
         }

@@ -39,6 +39,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -49,9 +50,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheOptimizedQueryable.cs" />
+    <Compile Include="Configuration\OptimizationConfigConfigSection.cs" />
     <Compile Include="Extentions\CacheOptimizedQueriableExtentions.cs" />
     <Compile Include="ICacheOptimizedQueryable.cs" />
+    <Compile Include="IOptimizationConfig.cs" />
     <Compile Include="IOrderedCacheOptimizedQueryable.cs" />
+    <Compile Include="OptimizationConfig.cs" />
     <Compile Include="OrderedCacheOptimizedQueryable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visitor\CacheOptimizedExpressionVisitor.cs" />
