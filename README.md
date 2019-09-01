@@ -18,3 +18,22 @@ or
 var interestingIds=new[]{1,2,3};
 context.Set<order>().AsCacheOptimizedQueryable().Where(o=>o.IsActual && interestingIds.Contains(o.Id));
 ```
+# Collection optimization
+Now items count is increased up to **OptimalCollectionSize** with first volue in collection. And if you pass collection in query with different collection size(less than **OptimalCollectionSize**), query would not recompile. Defafault **OptimalCollectionSize** is 10, but you can set your own **OptimalCollectionSize**.
+
+Set OptimalCollectionSize with parameter:
+```C#
+var interestingIds=new[]{1,2,3};
+var defaultConfig=new OptimizationConfig(){OptimalCollectionSize = 5};
+context.Orders.AsCacheOptimizedQueryable(defaultConfig).Where(o=>o.IsActual && interestingIds.Contains(o.Id));
+```
+Set OptimalCollectionSize with config:
+```XML
+<configuration>
+ <configSections>    
+    <section name="queryCacheOptimizer" type="NihFix.EfQueryCacheOptimizer.Configuration.OptimizationConfigConfigSection, NihFix.EfQueryCacheOptimizer" requirePermission="false"/>
+  </configSections>
+ <queryCacheOptimizer optimalCollectionSize="5"/>
+</configuration>
+
+```
