@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>2.1.0.0</version>
+    <version>2.1.1.0</version>
     <title>NihFix.EfQueryCacheOptimizer</title>
     <authors>Aleksey Kapustyanenko</authors>
     <owners>Aleksey Kapustyanenko</owners>
@@ -10,10 +10,7 @@
     <projectUrl>https://github.com/alexeykap/NihFix.EfQueryCacheOptimizer</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Optimize EF6 queries for second level ef cache.</description>
-    <releaseNotes>Add addition optimization for collections. Now items count is increased up to OptimalCollectionSize
-     with first volue in collection. And if you pass collection in query with different collection 
-      size(less than OptimalCollectionSize), query would not recompile. Defafault OptimalCollectionSize is 10, but you 
-      can set your own OptimalCollectionSize.</releaseNotes>
+    <releaseNotes>Fix unhadled exception when config does not set.</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>EntityFramework EF6 Optimization Query IQuariable Cache SecondLevelCache QueryCahe</tags>
   </metadata>

@@ -21,7 +21,7 @@ namespace NihFix.EfQueryCacheOptimizer
         static CacheOptimizedQueryable()
         {
             var defaultConfig = (OptimizationConfigConfigSection)ConfigurationManager.GetSection("queryCacheOptimizer");
-            if (defaultConfig.ElementInformation.IsPresent)
+            if (defaultConfig!=null && defaultConfig.ElementInformation.IsPresent)
             {
                 _defaultConfig = defaultConfig;
             }
