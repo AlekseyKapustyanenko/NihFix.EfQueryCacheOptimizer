@@ -82,7 +82,7 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
         {
             if (TryGetCollectionFromMethod(node, out var values) && node.Arguments.Count == 2)
             {
-                var selector = (MemberExpression) node.Arguments[1];
+                var selector = node.Arguments[1];
                 var binaryExpression =
                     MakeBinaryExpressionFromCollection(values, selector, ExpressionType.Equal, Expression.Or);
                 expression = binaryExpression;
@@ -179,11 +179,19 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
 
         private bool TryGetCollectionFromMethod(MethodCallExpression node, out IEnumerable collection)
         {
-            if (node.Arguments[0] is MemberExpression member && member.Expression.NodeType == ExpressionType.Constant)
+            if (node.Arguments[0] is MemberExpression member
+                && IsCollectionExpressionContainsConstant(member))
             {
                 var getValuesLambda = Expression.Lambda(member);
                 var getValuesMethod = getValuesLambda.Compile();
                 collection = GetOptimalEnumerable((IEnumerable) getValuesMethod.DynamicInvoke());
+                return true;
+            }else if(node.Arguments[0] is UnaryExpression unaryMember)
+
+            {
+                var getValuesLambda = Expression.Lambda(unaryMember.Operand);
+                var getValuesMethod = getValuesLambda.Compile();
+                collection = GetOptimalEnumerable((IEnumerable)getValuesMethod.DynamicInvoke());
                 return true;
             }
 
@@ -191,9 +199,22 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
             return false;
         }
 
+        private bool IsCollectionExpressionContainsConstant(MemberExpression member)
+        {
+            var currentExpression = member;
+            MemberExpression lastMemberExpression = member;
+            while (currentExpression != null)
+            {
+                lastMemberExpression = currentExpression;
+                currentExpression = lastMemberExpression.Expression as MemberExpression;
+            }
+            return lastMemberExpression.Expression.NodeType== ExpressionType.Constant;
+        }
+
+
         private BinaryExpression MakeBinaryExpressionFromCollection(
             IEnumerable values,
-            MemberExpression selector,
+            Expression selector,
             ExpressionType operation,
             Func<Expression, Expression,
                 BinaryExpression> binaryMethod)
