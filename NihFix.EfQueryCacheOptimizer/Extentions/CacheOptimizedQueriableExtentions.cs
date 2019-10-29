@@ -19,11 +19,23 @@ namespace System.Linq
         {
             return new CacheOptimizedQueryable<TSource>(originalQueryable);
         }
+        
+        public static ICacheOptimizedQueryable<TSource> AsCacheOptimizedQueryable<TSource>(
+            this IQueryable<TSource> originalQueryable, IOptimizationConfig optimizationConfig)
+        {
+            return new CacheOptimizedQueryable<TSource>(originalQueryable,optimizationConfig);
+        }
 
         public static IOrderedCacheOptimizedQueryable<TSource> AsOrderedCacheOptimizedQueryable<TSource>(
             this IOrderedQueryable<TSource> originalQueryable)
         {
             return new OrderedCacheOptimizedQueryable<TSource>(originalQueryable);
+        }
+        
+        public static IOrderedCacheOptimizedQueryable<TSource> AsOrderedCacheOptimizedQueryable<TSource>(
+            this IOrderedQueryable<TSource> originalQueryable, IOptimizationConfig optimizationConfig)
+        {
+            return new OrderedCacheOptimizedQueryable<TSource>(originalQueryable,optimizationConfig);
         }
 
         public static bool All<TSource>(this ICacheOptimizedQueryable<TSource> source,

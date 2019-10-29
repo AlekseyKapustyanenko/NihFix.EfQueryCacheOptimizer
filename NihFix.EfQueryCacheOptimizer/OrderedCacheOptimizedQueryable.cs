@@ -16,7 +16,13 @@ namespace NihFix.EfQueryCacheOptimizer
         {
             _orderedQueryable = orderedQueryable;
         }
-
+        
+        public OrderedCacheOptimizedQueryable(
+            IOrderedQueryable<T> orderedQueryable, 
+            IOptimizationConfig optimizationConfig):base(orderedQueryable, optimizationConfig)
+        {
+            _orderedQueryable = orderedQueryable;
+        }
         public IOrderedQueryable<T> AsOrderedQueryable()
         {
             return _orderedQueryable;
