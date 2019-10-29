@@ -179,24 +179,36 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
 
         private bool TryGetCollectionFromMethod(MethodCallExpression node, out IEnumerable collection)
         {
-            if (node.Arguments[0] is MemberExpression member
-                && IsCollectionExpressionContainsConstant(member))
+            Expression expression;
+            switch (node.Arguments[0])
             {
-                var getValuesLambda = Expression.Lambda(member);
-                var getValuesMethod = getValuesLambda.Compile();
-                collection = GetOptimalEnumerable((IEnumerable) getValuesMethod.DynamicInvoke());
-                return true;
-            }else if(node.Arguments[0] is UnaryExpression unaryMember)
-
-            {
-                var getValuesLambda = Expression.Lambda(unaryMember.Operand);
-                var getValuesMethod = getValuesLambda.Compile();
-                collection = GetOptimalEnumerable((IEnumerable)getValuesMethod.DynamicInvoke());
-                return true;
+                case MemberExpression member when IsCollectionExpressionContainsConstant(member):
+                {
+                    expression = member;
+                    break;
+                }
+                case UnaryExpression unaryMember:
+                {
+                    expression = unaryMember.Operand;
+                    break;
+                }
+                default:
+                {
+                    collection = null;
+                    return false;
+                }
             }
 
-            collection = null;
-            return false;
+            var enumerable = ExtractEnumerableFromExpression(expression);
+            collection = FillEnumerableToOptimalSize(enumerable);
+            return true;
+        }
+
+        private IEnumerable ExtractEnumerableFromExpression(Expression expression)
+        {
+            var getValuesLambda = Expression.Lambda(expression);
+            var getValuesMethod = getValuesLambda.Compile();
+            return (IEnumerable) getValuesMethod.DynamicInvoke();
         }
 
         private bool IsCollectionExpressionContainsConstant(MemberExpression member)
@@ -208,7 +220,8 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
                 lastMemberExpression = currentExpression;
                 currentExpression = lastMemberExpression.Expression as MemberExpression;
             }
-            return lastMemberExpression.Expression.NodeType== ExpressionType.Constant;
+
+            return lastMemberExpression.Expression.NodeType == ExpressionType.Constant;
         }
 
 
@@ -230,7 +243,7 @@ namespace NihFix.EfQueryCacheOptimizer.Visitor
             return binaryExpression;
         }
 
-        private IEnumerable GetOptimalEnumerable(IEnumerable enumerable)
+        private IEnumerable FillEnumerableToOptimalSize(IEnumerable enumerable)
         {
             var typedEnumerable = enumerable as object[] ?? enumerable.Cast<object>().ToArray();
             var enumerableLength = typedEnumerable.Length;
